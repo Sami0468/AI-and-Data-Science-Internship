@@ -1,0 +1,36 @@
+{
+    "web_development": {
+        "technologies": [
+            "Next.js",
+            "React",
+            "Node.js",
+            "PostgreSQL"
+        ],
+        "estimated_duration": "3-8 weeks"
+    },
+    "mobile_app": {
+        "technologies": [
+            "Flutter",
+            "Firebase",
+            "REST API"
+        ],
+        "estimated_duration": "4-10 weeks"
+    },
+    "ui_ux": {
+        "technologies": [
+            "Figma",
+            "Design Systems",
+            "Prototyping"
+        ],
+        "estimated_duration": "1-4 weeks"
+    },
+    "ai_application": {
+        "technologies": [
+            "Python",
+            "FastAPI",
+            "LangGraph",
+            "LLM APIs"
+        ],
+        "estimated_duration": "4-12 weeks"
+    }
+}
