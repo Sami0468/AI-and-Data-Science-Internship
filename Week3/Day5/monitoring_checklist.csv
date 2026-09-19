@@ -1,0 +1,7 @@
+metric,target,alert_threshold,cadence,action
+Response latency,< 5 seconds,> 5 seconds,Daily,"Investigate slow nodes, tools, API calls and model latency."
+Tool error rate,< 5%,> 5%,Daily,Inspect failed tool calls and input validation errors.
+Off-topic leak rate,< 2%,> 2%,Daily,Review guardrail failures and strengthen scope detection.
+Prediction accuracy drift,Within 5% of baseline,> 5% degradation,Weekly,Evaluate the latest completed matches and review model performance.
+Prediction model freshness,Weekly refresh,No refresh after new match data,Weekly,Update feature table and retrain when sufficient new data exists.
+Evaluation suite,Stable pass rate,Significant regression,Weekly,Run the complete evaluation suite before deployment.

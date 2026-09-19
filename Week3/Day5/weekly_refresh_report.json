@@ -1,0 +1,47 @@
+{
+  "refresh_status": {
+    "refresh_date": "2026-09-19 15:51:36",
+    "previous_rows": 15798,
+    "current_rows": 15808,
+    "new_rows": 10,
+    "new_data_available": true
+  },
+  "retraining_decision": {
+    "retrain": true,
+    "reason": "New match data is available. Run feature generation, evaluation and model retraining."
+  },
+  "monitoring_metrics": {
+    "average_latency_seconds": 0.624,
+    "max_latency_seconds": 0.81,
+    "tool_error_rate_percent": 3.33,
+    "off_topic_leak_rate_percent": 0.0
+  },
+  "alerts": [
+    {
+      "metric": "Overall monitoring",
+      "status": "OK",
+      "message": "No monitoring thresholds were exceeded."
+    }
+  ],
+  "prediction_drift": {
+    "baseline_accuracy": 0.78,
+    "latest_accuracy": 0.75,
+    "accuracy_drift_percent": 3.85,
+    "threshold_percent": 5.0,
+    "status": "OK"
+  },
+  "refresh_steps": [
+    "Collect newly completed AFL match results.",
+    "Append new match results to the historical dataset.",
+    "Update player and team feature tables.",
+    "Validate missing values and data types.",
+    "Check for data leakage in newly generated features.",
+    "Generate chronological training and validation data.",
+    "Evaluate the existing prediction model.",
+    "Retrain the model when sufficient new data is available.",
+    "Compare the refreshed model with the previous model.",
+    "Run the complete evaluation suite.",
+    "Deploy the refreshed model only if evaluation remains acceptable.",
+    "Store the previous model as a rollback version."
+  ]
+}
