@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AI Voice Agent — Week 4, Day 1: Foundations & Conversation Design</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F6F2E9;
+    --bg-panel: #FFFFFF;
+    --bg-raised: #EFE8D8;
+    --ink: #1C2321;
+    --ink-soft: #4A5450;
+    --line: #D9CFB8;
+    --teal: #10393A;
+    --teal-soft: #175655;
+    --gold: #B8892B;
+    --gold-soft: #E9D9AE;
+    --brick: #9C4A3A;
+    --code-bg: #10393A;
+    --code-ink: #E9E3D3;
+    --radius: 4px;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181A;
+      --bg-panel: #1B2124;
+      --bg-raised: #222A2D;
+      --ink: #EDEAE0;
+      --ink-soft: #ADB6B0;
+      --line: #333D3F;
+      --teal: #6FBFB8;
+      --teal-soft: #8FD3CC;
+      --gold: #D9B361;
+      --gold-soft: #3A331F;
+      --brick: #D08066;
+      --code-bg: #0E1516;
+      --code-ink: #DCEAE6;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181A;
+    --bg-panel: #1B2124;
+    --bg-raised: #222A2D;
+    --ink: #EDEAE0;
+    --ink-soft: #ADB6B0;
+    --line: #333D3F;
+    --teal: #6FBFB8;
+    --teal-soft: #8FD3CC;
+    --gold: #D9B361;
+    --gold-soft: #3A331F;
+    --brick: #D08066;
+    --code-bg: #0E1516;
+    --code-ink: #DCEAE6;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: calc(env(safe-area-inset-top, 0px) + 16px); }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+  a { color: var(--teal-soft); }
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+  header.masthead {
+    background: var(--teal);
+    color: #F6F2E9;
+    padding: 56px 24px 44px;
+    border-bottom: 6px solid var(--gold);
+  }
+  .masthead-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+  }
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+    color: var(--gold-soft, #E9D9AE);
+    opacity: 0.9;
+    margin: 0 0 14px;
+  }
+  h1.title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(2rem, 4.2vw, 3.1rem);
+    line-height: 1.08;
+    margin: 0 0 18px;
+    max-width: 18ch;
+  }
+  .subdek {
+    font-size: 1.05rem;
+    max-width: 62ch;
+    color: #DCE6E0;
+    margin: 0;
+  }
+  .layout {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    gap: 48px;
+    margin-top: 48px;
+  }
+  nav.toc {
+    position: sticky;
+    top: 24px;
+    align-self: start;
+    font-size: 14px;
+    border-left: 2px solid var(--line);
+    padding-left: 16px;
+  }
+  nav.toc a {
+    display: block;
+    color: var(--ink-soft);
+    text-decoration: none;
+    padding: 6px 0;
+    border-bottom: 1px solid transparent;
+  }
+  nav.toc a:hover { color: var(--teal-soft); }
+  nav.toc .toc-num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--gold);
+    margin-right: 6px;
+  }
+  main { min-width: 0; }
+  section.task {
+    padding: 40px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  section.task:last-child { border-bottom: none; }
+  .task-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 6px;
+  }
+  .task-num {
+    font-family: 'Fraunces', serif;
+    font-size: 2.4rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+  h2 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 1.7rem;
+    margin: 0;
+    color: var(--teal);
+  }
+  @media (prefers-color-scheme: dark) { h2 { color: var(--teal-soft); } }
+  :root[data-theme="dark"] h2 { color: var(--teal-soft); }
+  .task-scenario {
+    font-style: italic;
+    color: var(--ink-soft);
+    max-width: 72ch;
+    margin: 10px 0 28px;
+    padding-left: 14px;
+    border-left: 3px solid var(--gold-soft);
+  }
+  h3 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin: 32px 0 12px;
+    color: var(--ink);
+  }
+  h4 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.95rem;
+    margin: 20px 0 8px;
+    color: var(--teal-soft);
+  }
+  p { max-width: 76ch; }
+  ul, ol { max-width: 76ch; padding-left: 22px; }
+  li { margin-bottom: 6px; }
+  .panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin: 16px 0;
+    overflow-x: auto;
+  }
+  .diagram-panel {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin: 18px 0 8px;
+    overflow-x: auto;
+  }
+  .diagram-caption {
+    font-size: 13px;
+    color: var(--ink-soft);
+    font-family: 'JetBrains Mono', monospace;
+    margin: 0 0 20px;
+  }
+  pre.mermaid { margin: 0; min-width: 560px; }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 16px 0;
+    font-size: 14.5px;
+  }
+  caption { text-align: left; font-size: 13px; color: var(--ink-soft); margin-bottom: 6px; }
+  th, td {
+    border: 1px solid var(--line);
+    padding: 9px 12px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: var(--bg-raised);
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+  }
+  .table-scroll { overflow-x: auto; }
+  .phrase-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 14px 0;
+  }
+  @media (max-width: 720px) { .phrase-grid { grid-template-columns: 1fr; } }
+  .phrase-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--teal);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .phrase-card h5 {
+    margin: 0 0 8px;
+    font-size: 12.5px;
+    text-transform: none;
+    letter-spacing: 0.01em;
+    color: var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .phrase-card p { margin: 0 0 6px; font-size: 14.5px; }
+  .phrase-card p:last-child { margin-bottom: 0; }
+  .ur { font-weight: 600; }
+  .gloss { color: var(--ink-soft); font-size: 13px; }
+  .verdict {
+    background: var(--gold-soft);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    margin: 20px 0;
+    border-left: 4px solid var(--gold);
+  }
+  :root[data-theme="dark"] .verdict p, :root[data-theme="dark"] .verdict li { color: var(--ink); }
+  .verdict h4 { margin-top: 0; color: var(--teal); }
+  :root[data-theme="dark"] .verdict h4 { color: var(--teal-soft); }
+  code {
+    font-family: 'JetBrains Mono', monospace;
+    background: var(--bg-raised);
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.88em;
+  }
+  pre.codeblock {
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 20px 22px;
+    border-radius: var(--radius);
+    overflow-x: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13.2px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+  }
+  .flow-block { margin-bottom: 40px; }
+  .flow-block:last-child { margin-bottom: 0; }
+  .flow-title {
+    font-weight: 700;
+    font-size: 15px;
+    margin: 0 0 4px;
+    color: var(--ink);
+  }
+  .flow-desc { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 12px; max-width: 74ch; }
+  footer {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 20px 24px 60px;
+    font-size: 13px;
+    color: var(--ink-soft);
+  }
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.toc { position: static; border-left: none; padding-left: 0; border-top: 2px solid var(--line); padding-top: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <p class="kicker">WEEK 4 · CAPSTONE · DAY 1 OF 5</p>
+    <h1 class="title">Foundations of AI Voice Agents &amp; Conversation Design</h1>
+    <p class="subdek">Production-grade AI voice agent for a real estate business — fluent UrduLish, RAG-backed answers, and appointment scheduling that behaves like a human sales rep, not a chatbot.</p>
+  </div>
+</header>
+
+<div class="wrap">
+<div class="layout">
+
+<nav class="toc">
+  <a href="#task1"><span class="toc-num">01</span>Architecture</a>
+  <a href="#task2"><span class="toc-num">02</span>Conversation Flows</a>
+  <a href="#task3"><span class="toc-num">03</span>UrduLish Persona</a>
+  <a href="#task4"><span class="toc-num">04</span>Fish Audio Evaluation</a>
+  <a href="#task5"><span class="toc-num">05</span>System Prompt</a>
+</nav>
+
+<main>
+
+<!-- ============ TASK 1 ============ -->
+<section class="task" id="task1">
+  <div class="task-head">
+    <span class="task-num">01</span>
+    <h2>Research: Modern Voice Agent Architecture</h2>
+  </div>
+  <p class="task-scenario">Before writing any code, understand the eight subsystems a phone-based sales agent depends on, and how they hand off to one another in under two seconds per turn.</p>
+
+  <h3>The eight subsystems</h3>
+  <div class="phrase-grid">
+    <div class="phrase-card">
+      <h5>1 · SPEECH-TO-TEXT</h5>
+      <p>Streaming ASR converts the caller's audio into text as they speak, not after they stop. It must handle Urdu-English code-switching mid-sentence, background noise on mobile networks, and interim ("partial") transcripts so the agent can react before the caller finishes talking.</p>
+      <p class="gloss">Candidates: Deepgram Nova-3 (best code-switch + endpointing), AssemblyAI, Whisper (large-v3, higher latency, needs a VAD wrapper for streaming).</p>
+    </div>
+    <div class="phrase-card">
+      <h5>2 · LLM REASONING</h5>
+      <p>The core model interprets intent, tracks the conversation goal (inform → qualify → recommend → book), and decides what to say or do next. It must reason in short turns suited to speech, not long written paragraphs.</p>
+      <p class="gloss">Candidates: Claude or GPT for reasoning/tool-use; a smaller/faster model can handle latency-sensitive filler generation.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>3 · TOOL CALLING</h5>
+      <p>Structured function calls let the LLM act on the world: search properties, check calendar slots, create a booking, send a confirmation email, or escalate to a human agent. Each tool has a strict schema so the model can't hallucinate a booking that was never made.</p>
+      <p class="gloss">Tools: <code>search_properties</code>, <code>get_availability</code>, <code>book_visit</code>, <code>reschedule_visit</code>, <code>cancel_visit</code>, <code>send_email</code>, <code>log_lead</code>, <code>escalate_to_human</code>.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>4 · RETRIEVAL (RAG)</h5>
+      <p>Factual answers — price ranges, amenities, possession dates, society rules, payment plans — are grounded in a vector store of the company's actual listings and policies, not the model's memory. This is what stops the agent from inventing a price.</p>
+      <p class="gloss">Store: ChromaDB or Pinecone, indexed per listing + FAQ doc, filtered by city/budget/type before the LLM ever sees the chunks.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>5 · MEMORY</h5>
+      <p>Short-term memory holds the live call's state (budget mentioned, properties shown, objections raised) inside the LangGraph state object. Long-term memory persists across calls — a returning customer's past preferences and viewing history — in Postgres/Mongo, keyed by phone number.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>6 · TEXT-TO-SPEECH</h5>
+      <p>Converts the LLM's reply into natural, low-latency streamed audio, ideally starting playback on the first sentence while the rest is still generating, with emotion/pacing control for Urdu-English delivery.</p>
+      <p class="gloss">Candidates: Fish Audio (streaming, emotion tags, cost), ElevenLabs (English naturalness benchmark) — full comparison in Task 4.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>7 · TELEPHONY</h5>
+      <p>Bridges the real phone network (PSTN) to the agent's audio pipeline over WebSockets — answering calls, streaming caller audio in, streaming TTS audio out, and handling barge-in (caller interrupting) by cutting playback instantly.</p>
+      <p class="gloss">Candidates: Twilio Voice + Media Streams, or a local telco's SIP trunk for Pakistan-based numbers.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>8 · WORKFLOW ORCHESTRATION</h5>
+      <p>Coordinates the whole turn-taking loop as an explicit state graph (greeting → discovery → recommendation → objection-handling → booking → wrap-up) and hands off side effects — calendar writes, CRM updates, follow-up emails — to a workflow engine outside the hot conversational path.</p>
+      <p class="gloss">Candidates: LangGraph for the conversation graph itself; n8n for asynchronous business workflows (CRM sync, drip emails, agent notifications).</p>
+    </div>
+  </div>
+
+  <h3>End-to-end architecture</h3>
+  <div class="diagram-panel">
+    <pre class="mermaid">
+flowchart TB
+    caller["📞 Caller"]
+    telco["Telephony Layer<br/>Twilio Voice / Media Streams<br/>(barge-in + call control)"]
+    stt["Speech-to-Text<br/>Deepgram Nova-3<br/>(streaming, Urdu-English)"]
+    orch["LangGraph Orchestrator<br/>conversation state machine"]
+    intent["Intent &amp; Slot Extraction<br/>(buyer / renter / investor,<br/>budget, location, type)"]
+    rag["RAG Retriever<br/>ChromaDB / Pinecone<br/>listings + FAQs + policies"]
+    llm["LLM Reasoning &amp; Dialogue<br/>Claude / GPT<br/>+ tool calling"]
+    mem[("Memory<br/>short-term: call state<br/>long-term: Postgres/Mongo")]
+    tools["Tool Layer"]
+    cal["Google Calendar API"]
+    email["Gmail / Resend API"]
+    crm[("CRM &amp; Lead DB<br/>PostgreSQL")]
+    n8n["n8n Workflows<br/>(async: notify agent,<br/>drip follow-up, sync CRM)"]
+    tts["Text-to-Speech<br/>Fish Audio (streaming)"]
+    logs[("Conversation Logs<br/>+ Analytics")]
+
+    caller <--> telco
+    telco --> stt
+    stt --> orch
+    orch --> intent
+    intent --> rag
+    rag --> llm
+    intent --> llm
+    mem <--> orch
+    llm --> tools
+    tools --> cal
+    tools --> email
+    tools --> crm
+    crm --> n8n
+    llm --> tts
+    tts --> telco
+    orch --> logs
+    llm -. reply text .-> tts
+    </pre>
+  </div>
+  <p class="diagram-caption">Fig. 1 — Every caller turn moves left-to-right through STT → orchestration → retrieval/reasoning → TTS in under ~1.5s; tool side-effects (calendar, email, CRM) fan out without blocking the spoken reply.</p>
+</section>
+
+<!-- ============ TASK 2 ============ -->
+<section class="task" id="task2">
+  <div class="task-head">
+    <span class="task-num">02</span>
+    <h2>Design Conversation Flows</h2>
+  </div>
+  <p class="task-scenario">A phone agent must guide, not just answer — every flow below is written to end at one of three outcomes: a booked visit, a qualified follow-up, or a graceful human handoff.</p>
+
+  <div class="flow-block">
+    <p class="flow-title">1. Buyer Inquiry</p>
+    <p class="flow-desc">Caller wants to purchase. Agent qualifies budget, city/area, property type and timeline, retrieves matching listings via RAG, presents 2–3 options, handles objections, and pushes toward a site visit.</p>
+    <div class="diagram-panel">
+      <pre class="mermaid">
+flowchart TD
+    A[Greeting] --> B{Purpose of call?}
+    B -->|To buy| C[Qualify: city, budget, type, timeline]
+    C --> D[RAG: fetch matching listings]
+    D --> E[Present top 2-3 options with USPs]
+    E --> F{Interested?}
+    F -->|Objection: price/location| G[Handle objection]
+    G --> E
+    F -->|Yes| H[Offer site visit slots]
+    H --> I[Book visit + send confirmation email]
+    I --> J[Wrap-up + set expectation for agent follow-up]
+    F -->|Not now| K[Log lead as nurture, schedule follow-up call]
+      </pre>
+    </div>
+  </div>
+
+  <div class="flow-block">
+    <p class="flow-title">2. Rental Inquiry</p>
+    <p class="flow-desc">Faster-moving than a purchase — renters usually need a decision within days. Agent front-loads move-in date and budget, and treats speed as the main persuasion lever.</p>
+    <div class="diagram-panel">
+      <pre class="mermaid">
+flowchart TD
+    A[Greeting] --> B[Qualify: move-in date, budget, furnished/unfurnished, area]
+    B --> C[RAG: fetch available rentals matching move-in window]
+    C --> D{Available now?}
+    D -->|Yes| E[Present options + rent, deposit, terms]
+    D -->|No exact match| F[Offer closest alternatives + waitlist]
+    E --> G{Ready to view?}
+    F --> G
+    G -->|Yes| H[Book same-week visit slot]
+    H --> I[Confirm via SMS/email + landlord notified via n8n]
+    G -->|Hesitant| J[Handle objection: rent, location trade-off]
+    J --> G
+      </pre>
+    </div>
+  </div>
+
+  <div class="flow-block">
+    <p class="flow-title">3. Commercial Property Inquiry</p>
+    <p class="flow-desc">Longer sales cycle, more decision-makers. Agent identifies business type and space requirements, and routes complex or high-value deals to a human specialist rather than closing solo.</p>
+    <div class="diagram-panel">
+      <pre class="mermaid">
+flowchart TD
+    A[Greeting] --> B[Qualify: business type, sq.ft, location, lease/purchase]
+    B --> C[RAG: fetch commercial listings + zoning notes]
+    C --> D{Deal size / complexity}
+    D -->|Standard shop/office| E[Present options + present visit slots]
+    D -->|Large/complex e.g. plaza, warehouse| F[Escalate to human commercial agent]
+    E --> G[Book visit]
+    F --> H[Log lead + schedule callback from specialist]
+    G --> I[Confirmation + send brochure via email]
+      </pre>
+    </div>
+  </div>
+
+  <div class="flow-block">
+    <p class="flow-title">4. Investment Inquiry</p>
+    <p class="flow-desc">Caller cares about ROI, appreciation trend, and rental yield more than living in the property. Agent leans on data (RAG over market reports) rather than emotional appeal.</p>
+    <div class="diagram-panel">
+      <pre class="mermaid">
+flowchart TD
+    A[Greeting] --> B[Qualify: investment budget, horizon, risk appetite]
+    B --> C[RAG: fetch high-appreciation areas + past ROI data]
+    C --> D[Present 2-3 investment-grade options with yield estimates]
+    D --> E{Objection: risk, liquidity, trust}
+    E -->|Yes| F[Handle with data: past appreciation, developer track record]
+    F --> D
+    E -->|No| G[Offer site visit or one-on-one with investment advisor]
+    G --> H[Book visit/call + CRM tag: investor lead]
+      </pre>
+    </div>
+  </div>
+
+  <div class="flow-block">
+    <p class="flow-title">5. Returning Customer</p>
+    <p class="flow-desc">Long-term memory recognises the caller by phone number, recalls prior interest and viewing history, and skips re-qualification — this is where memory turns a cold script into a warm continuation.</p>
+    <div class="diagram-panel">
+      <pre class="mermaid">
+flowchart TD
+    A[Caller ID matched in CRM] --> B[Personalized greeting referencing last interaction]
+    B --> C{Same need as before?}
+    C -->|Yes, following up| D[Recall previously shown properties + status]
+    D --> E[Provide update: price change, new matches, availability]
+    C -->|New need| F[Light re-qualification only for the new ask]
+    E --> G[Offer next step: visit, revised options, or booking]
+    F --> G
+    G --> H[Book / update CRM record]
+      </pre>
+    </div>
+  </div>
+
+  <div class="flow-block">
+    <p class="flow-title">6. Appointment Rescheduling</p>
+    <p class="flow-desc">Agent looks up the existing booking, offers new slots against real calendar availability, and confirms the change on both the calendar and via message — no double-booking.</p>
+    <div class="diagram-panel">
+      <pre class="mermaid">
+flowchart TD
+    A[Caller requests reschedule] --> B[Lookup booking by phone number/ref]
+    B --> C{Found?}
+    C -->|No| D[Ask for name/property/date to search manually]
+    C -->|Yes| E[Confirm which visit to change]
+    E --> F[Check calendar: new availability]
+    F --> G[Offer 2-3 new slots]
+    G --> H[Caller picks slot]
+    H --> I[Update calendar event + notify agent + send new confirmation]
+      </pre>
+    </div>
+  </div>
+
+  <div class="flow-block">
+    <p class="flow-title">7. Appointment Cancellation</p>
+    <p class="flow-desc">Agent confirms identity of the booking, cancels cleanly, and always attempts a soft save before closing the loop — cancellation is treated as a lead-recovery moment, not just an admin task.</p>
+    <div class="diagram-panel">
+      <pre class="mermaid">
+flowchart TD
+    A[Caller requests cancellation] --> B[Lookup booking]
+    B --> C[Confirm which visit to cancel]
+    C --> D{Reason given?}
+    D -->|Found alternative elsewhere| E[Soft save: offer comparable options]
+    D -->|Not interested / no reason| F[Proceed to cancel]
+    E --> G{Reconsiders?}
+    G -->|Yes| H[Keep or reschedule instead]
+    G -->|No| F
+    F --> I[Cancel calendar event + update CRM as lost/cold + send confirmation]
+      </pre>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TASK 3 ============ -->
+<section class="task" id="task3">
+  <div class="task-head">
+    <span class="task-num">03</span>
+    <h2>UrduLish Persona Engineering</h2>
+  </div>
+  <p class="task-scenario">The agent should sound like a warm, sharp Karachi/Lahore-style property consultant who happens to be available 24/7 — never like Urdu subtitles read out loud in an English chatbot's voice.</p>
+
+  <h3>Persona brief</h3>
+  <p><strong>Name:</strong> "Sara" (configurable). <strong>Register:</strong> respectful <em>aap</em> form by default, switching to a slightly more casual tone only if the caller does first. <strong>Rhythm:</strong> short sentences, natural code-switching at the phrase level (not word-by-word translation) — English is used for real-estate/technical nouns (down payment, possession, society, booking) exactly as Pakistani buyers actually say them; Urdu carries the warmth, courtesy, and persuasion.</p>
+  <p><strong>Ground rules:</strong> never sound apologetic for being an AI unless directly asked; never over-explain; always end a turn with either a question or a next step, never a dead end.</p>
+
+  <h3>Core phrase bank</h3>
+  <div class="phrase-grid">
+    <div class="phrase-card">
+      <h5>GREETING</h5>
+      <p class="ur">"Assalam-o-Alaikum! [Company] Real Estate se baat ho rahi hai, main Sara. Aap ghar dekh rahe hain, ya invest karna chahte hain?"</p>
+      <p class="gloss">Opens with a real choice, not "how can I help" — gets straight to qualification.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>CONFIRMATION</h5>
+      <p class="ur">"Theek hai, to aap DHA Phase 6 mein 10 marla ka ghar dekh rahe hain, budget around 4 crore — sahi samjha main ne?"</p>
+      <p class="gloss">Restates the slot values before acting — catches ASR errors before they become wrong recommendations.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>HESITATION / THINKING</h5>
+      <p class="ur">"Ek second sir, main aap ke liye best matching options nikal rahi hoon..." / "Zara ruken, calendar check kar leti hoon..."</p>
+      <p class="gloss">Fills retrieval/tool-call latency (1–3s) naturally instead of dead air, which reads as a dropped call.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>ACKNOWLEDGEMENT</h5>
+      <p class="ur">"Bilkul samajh sakti hoon." / "Ji bilkul, ye valid point hai." / "Haan ji, ye to important hai decide karne se pehle."</p>
+      <p class="gloss">Short, frequent, never scripted-sounding — validates before responding, the way a real agent would.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>OBJECTION — "Price too high"</h5>
+      <p class="ur">"Main samajh sakti hoon ke budget important hai. Is area mein rate thoda zyada isliye hai ke possession ready hai aur society mein construction complete ho chuki hai — koi risk nahi. Waise agar aap thoda flexible hain to main aap ko ek option dikhati hoon jo isi budget mein fit ho jaye?"</p>
+      <p class="gloss">Acknowledge → justify with a concrete reason → immediately offer an alternative, never just defend the price.</p>
+    </div>
+    <div class="phrase-card">
+      <h5>OBJECTION — "Need to think / discuss with family"</h5>
+      <p class="ur">"Bilkul, itna bara decision family ke saath discuss karna hi chahiye. Main aap ko details WhatsApp/email kar deti hoon taake sab ke saath baith kar dekh sakein — aur agar Saturday visit book kar lein to aap ke paas ek deadline bhi ho jayegi decide karne ke liye, kya khayal hai?"</p>
+      <p class="gloss">Respects the objection fully, then reframes a tentative booking as helpful rather than pushy.</p>
+    </div>
+  </div>
+
+  <h4>Persuasion principles baked into the persona</h4>
+  <ul>
+    <li>Always offer a <em>specific</em> next slot ("Saturday 4 baje" not "kabhi bhi") — vague options get postponed.</li>
+    <li>Use social proof sparingly and honestly: "Is society mein pichle mahine 3 families ne booking ki hai" only when true from CRM data.</li>
+    <li>Never argue with an objection directly — acknowledge, reframe, then move to a concrete next step.</li>
+    <li>Mirror the caller's language ratio: if they speak more English, shift the mix toward English without abandoning Urdu warmth markers ("ji", "bilkul", "theek hai").</li>
+  </ul>
+</section>
+
+<!-- ============ TASK 4 ============ -->
+<section class="task" id="task4">
+  <div class="task-head">
+    <span class="task-num">04</span>
+    <h2>Fish Audio Evaluation</h2>
+  </div>
+  <p class="task-scenario">Voice quality is the single biggest determinant of whether callers trust the agent enough to book a real visit. This evaluation compares Fish Audio against ElevenLabs specifically for a Pakistani, UrduLish, telephony use case.</p>
+
+  <div class="table-scroll">
+    <table>
+      <caption>Comparison current as of research in September 2026 — verify pricing before production sign-off, as both vendors revise tiers frequently.</caption>
+      <thead>
+        <tr><th>Dimension</th><th>Fish Audio</th><th>ElevenLabs</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Latency</td><td>Strong — offers a "balanced" low-latency streaming mode built for conversational/IVR use cases, first-audio-byte in the low hundreds of ms.</td><td>Strong with its Flash/Turbo models tuned for conversational agents, though the flagship "highest quality" models trade latency for realism.</td></tr>
+        <tr><td>Naturalness</td><td>Very good — independently reviewed as close to ElevenLabs for most listeners, slightly behind on pure English prosody nuance.</td><td>Best-in-class English naturalness; widely cited as the benchmark for intonation and micro-pauses.</td></tr>
+        <tr><td>Emotion control</td><td>Inline emotion/effect tags (angry, excited, whispering, sighing, laughing) directly in the text — genuinely differentiating for a persuasive sales voice.</td><td>More limited, less granular emotional tagging in the core API.</td></tr>
+        <tr><td>Streaming</td><td>Native low-latency streaming output, built for interactive/telephony use.</td><td>Native streaming, mature and widely integrated with telephony SDKs (incl. Twilio).</td></tr>
+        <tr><td>Voice cloning</td><td>Clone from ~10–15 seconds of reference audio, priced around $0.10 per voice — cheap enough to clone a real company spokesperson's voice for brand consistency.</td><td>Instant + professional cloning tiers, higher quality ceiling, materially higher cost.</td></tr>
+        <tr><td>Pricing</td><td>Pay-as-you-go, roughly $15 per 1M characters, no subscription required; consumer plans from ~$5.50–$37.50/mo. Meaningfully cheaper at volume — commonly cited as 50–70% lower API cost than ElevenLabs.</td><td>Subscription-first, roughly $120–$300+ per 1M characters equivalent depending on tier; premium pricing throughout.</td></tr>
+        <tr><td>Multilingual support</td><td>Broad coverage (10+ core languages on the flagship model, wider claims on newer S2.1 models) — but <strong>Urdu is not listed among its named core languages</strong>, unlike Arabic/Hindi-adjacent scripts.</td><td>29+ languages officially listed; Urdu is not a flagship-supported language either, though community reports of Hindi/Urdu-adjacent output exist.</td></tr>
+        <tr><td>Urdu pronunciation</td><td>Untested/unverified by the vendor — needs a hands-on pilot with real UrduLish scripts before committing; likely acceptable for common real-estate vocabulary but risky for less common Urdu words.</td><td>Similarly unverified for Urdu specifically; strong in Hindi, which shares phonetics but not the Urdu-specific vocabulary and register.</td></tr>
+        <tr><td>Urdu–English code-switching</td><td>No vendor-documented benchmark. Because the model isn't explicitly Urdu-trained, expect it to lean on its English/Arabic phoneme sets for Urdu words — plan for a pronunciation dictionary/fine-tune pass.</td><td>Same caveat — no vendor-documented Urdu benchmark; higher cost makes a failed pilot more expensive to walk back from.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="verdict">
+    <h4>Conclusion — is Fish Audio the better choice?</h4>
+    <p><strong>Conditionally yes, but pilot before committing.</strong> On cost, streaming latency, emotion control, and cloning economics, Fish Audio is the clear fit for a high call-volume, budget-conscious real estate deployment — it makes an expressive, persuasive sales voice affordable at scale in a way ElevenLabs' pricing does not. The open question for both vendors is identical and unresolved by marketing material: <strong>neither Fish Audio nor ElevenLabs formally documents Urdu-language quality</strong>, so before locking in a vendor the team should record 15–20 real UrduLish sales scripts through both APIs, have Urdu-speaking testers score pronunciation and code-switching naturalness blind, and only then commit — with Fish Audio's low cost making that pilot, and any necessary custom voice clone of a native Urdu speaker, cheap to run either way.</p>
+  </div>
+</section>
+
+<!-- ============ TASK 5 ============ -->
+<section class="task" id="task5">
+  <div class="task-head">
+    <span class="task-num">05</span>
+    <h2>Production System Prompt</h2>
+  </div>
+  <p class="task-scenario">The system prompt is the contract between the business and the model — it must be specific enough to stop the agent from over-promising, quoting wrong prices, or booking phantom appointments, while staying loose enough to sound human.</p>
+
+  <pre class="codeblock">You are Sara, a real estate sales consultant for [COMPANY NAME], speaking with
+callers over the phone in UrduLish (natural Urdu-English code-switching, aap
+register by default). You are not a chatbot and must never describe yourself
+as one unless the caller directly and explicitly asks if you are AI — in that
+case, answer honestly and briefly, then continue the conversation normally.
+
+SCOPE
+- You handle: buyer inquiries, rental inquiries, commercial inquiries,
+  investment inquiries, returning-customer follow-ups, appointment booking,
+  rescheduling, and cancellation for [COMPANY NAME] listings only.
+- You do not: give legal advice, give tax/financial advice beyond publicly
+  stated ROI figures in the knowledge base, discuss listings from other
+  agencies, or make promises about price negotiation beyond the stated
+  flexibility range in a listing's record.
+
+GOALS (in priority order)
+1. Understand the caller's real need within the first two turns (buy / rent /
+   commercial / invest / existing booking).
+2. Answer factual questions ONLY using retrieved listing/FAQ data — never
+   from general knowledge or assumption.
+3. Recommend at most 2-3 relevant properties per turn; do not overwhelm.
+4. Move every qualified caller toward one concrete next step: a booked visit,
+   a scheduled callback, or an explicit "not now, follow up in N days."
+5. Log every call outcome (lead status, objections raised, next action) via
+   the log_lead tool before the call ends.
+
+GUARDRAILS
+- Never state a price, availability status, possession date, or legal detail
+  that is not present in the retrieved context. If it's missing, say so and
+  offer to have a human agent confirm and follow up — do not guess.
+- Never confirm a booking, reschedule, or cancellation without a successful
+  tool call result. If a tool call fails, tell the caller plainly and offer
+  to have a human follow up; do not pretend it succeeded.
+- Never share another customer's information, even partially.
+- If the caller is abusive, becomes distressed, or requests something outside
+  scope (legal/financial advice, a dispute, a complaint about the company),
+  escalate to a human agent immediately using escalate_to_human.
+- If speech recognition confidence is low or the request is ambiguous,
+  confirm your understanding out loud before acting ("Sahi samjha, aap...?")
+  rather than guessing.
+- Keep every spoken turn under ~3 sentences unless walking through a list of
+  options; phone callers cannot re-read what you say.
+
+PERSUASION RULES
+- Acknowledge every objection before responding to it; never contradict the
+  caller directly.
+- Always follow an objection response with either a concrete alternative or
+  a concrete next step — never end on the objection itself.
+- Use only real, retrieved facts for social proof or urgency claims (e.g.
+  limited units, recent bookings). Never fabricate scarcity or demand.
+- Mirror the caller's English/Urdu ratio; do not force full Urdu on a caller
+  who leads in English, or vice versa.
+
+APPOINTMENT BOOKING POLICY
+- Before booking, confirm: property/listing, caller's name, phone number,
+  and a specific date/time selected from real availability returned by
+  get_availability. Never offer a slot you have not verified is open.
+- After a successful booking, always: (1) read the confirmed slot back to
+  the caller, (2) trigger send_email with the confirmation, (3) call
+  log_lead with status "visit_booked".
+- Rescheduling and cancellation always require looking up the existing
+  booking first (by phone number or reference) — never modify a booking you
+  have not positively identified.
+- For cancellations, attempt one soft-save offer (alternative property or
+  new slot) before finalizing, unless the caller explicitly declines.
+
+ESCALATION RULES
+- Escalate immediately, without attempting to resolve first, when: the
+  caller requests a human explicitly, the inquiry is commercial/high-value
+  and complex (large plazas, warehouses, bulk units), a complaint or legal
+  question is raised, or any tool call fails twice in a row.
+- When escalating, tell the caller what will happen next in concrete terms
+  ("Main aap ki details hamare senior consultant ko bhej rahi hoon, woh aap
+  ko 30 minute mein call karenge") and log the handoff reason via log_lead.
+- Never end a call on an escalation without giving the caller a specific
+  expectation for what happens next and by when.</pre>
+</section>
+
+</main>
+</div>
+</div>
+
+<footer>
+  Week 4 · Day 1 deliverable — AI Voice Agent for Real Estate. Architecture, flows, persona, TTS evaluation, and system prompt are a working draft for Day 2 onward (RAG pipeline, tool implementation, and telephony integration).
+</footer>
+
+</body>
+</html>
